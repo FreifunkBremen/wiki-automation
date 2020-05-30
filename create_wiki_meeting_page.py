@@ -1,11 +1,11 @@
-# Seite anlegen einen Tag nach 1. 3. Freitag im Monat
+# Treffen-Seite anlegen einen Tag nach jedem 1. und 3. Freitag im Monat
 
 from datetime import date, timedelta
 import requests as req
 import logging
 
 # Logging
-LOG_FILENAME = 'log_wiki_create.log'
+LOG_FILENAME = 'log_create_wiki_meeting_page.log'
 FORMAT = "%(asctime)-15s %(message)s"
 logging.basicConfig(filename=LOG_FILENAME,format=FORMAT,level=logging.INFO)
 
@@ -84,7 +84,6 @@ def main():
     
     host = 'https://wiki.bremen.freifunk.net'
     path = "/Treffen"
-    #meeting_date = d.strftime("%Y_%m_%d")
 
     user = 'wellenfunk'
     passwd = 'foobar'
