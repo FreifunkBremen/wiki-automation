@@ -93,6 +93,7 @@ def main():
         next_two_meetings = next_1st_and_3rd_friday(d)
         logging.info("Next meetings: "+next_two_meetings[0].strftime("%Y_%m_%d")+" "+next_two_meetings[1].strftime("%Y_%m_%d"))
         print("Next meetings: "+next_two_meetings[0].strftime("%Y_%m_%d")+" "+next_two_meetings[1].strftime("%Y_%m_%d"))
+        edit_latest_page(user, passwd, host, path)
         create_meeting_page(next_two_meetings[0], user, passwd, host, path, template_text)
     else:
         logging.info("Nothing done.")
@@ -182,6 +183,45 @@ def create_meeting_page(meeting_date, user, passwd, host, path, template_text):
 
     logging.info("Page created. Have a nice day.")
     print("Page created. Have a nice day.")
+
+def get_last_protocol_date():
+    #https://wiki.ffhb.de/pages/Treffen/
+    resp_create = req.get("https://wiki.ffhb.de/pages/Treffen/")
+    
+    matched_lines = [line for line in resp_create.text.split('\n') if '<li><a href="' in line]
+    last_date = matched_lines[-2][22:32] # get date
+    
+    return last_date
+    
+
+def edit_latest_page(user, passwd, host, path):
+    
+    logging.info("Creating Page latest.")
+    print("Creating Page logging.")
+    title = "latest"
+    
+    last_date = get_last_protocol_date()
+
+    neuer_text = """
+# Latest
+
+# Bearbeitungshinweis
+Dies ist das eingebundene Protokoll des letzten Treffens.
+Du kannst das Protokoll unter [[DATE_PLACEHOLDER_SCORED|DATE_PLACEHOLDER_SCORED]] bearbeiten
+
+---
+
+[[include:/Treffen/DATE_PLACEHOLDER_SCORED]]
+    """
+    neuer_text=neuer_text.replace("DATE_PLACEHOLDER_SCORED", last_date)
+
+    create_post_req = {"page":title,
+             "path": path,
+             "format":"markdown",
+             "content": neuer_text.replace("DATE_PLACEHOLDER_SCORED", last_date),
+             "message":"Edited latest"}
+
+    resp_create = req.post(host+"/edit"+path+"/"+title, data = create_post_req, auth=(user, passwd))
 
 if __name__ == "__main__":
     main()
